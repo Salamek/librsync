@@ -1,6 +1,6 @@
-language: c
+# "It took the night to believe"
 
-install: sudo apt-get install libpopt-dev
+language: c
 
 compiler:
   - gcc
@@ -8,6 +8,13 @@ compiler:
 
 before_script:
   - cmake .
+  
+sudo: false
+
+addons:
+  apt:
+    packages:
+    - cmake
+    - libpopt-dev
 
 script: make && make test
-

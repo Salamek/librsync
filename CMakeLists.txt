@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 2.6)
 
 set(LIBRSYNC_MAJOR_VERSION 1)
 set(LIBRSYNC_MINOR_VERSION 0)
-set(LIBRSYNC_PATCH_VERSION 0)
+set(LIBRSYNC_PATCH_VERSION 1)
 
 set(LIBRSYNC_VERSION
   ${LIBRSYNC_MAJOR_VERSION}.${LIBRSYNC_MINOR_VERSION}.${LIBRSYNC_PATCH_VERSION})
@@ -163,11 +163,12 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src)
 execute_process(COMMAND ${PERL_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/src/mkprototab.pl" "${CMAKE_CURRENT_BINARY_DIR}/src/prototab.c" "${CMAKE_CURRENT_BINARY_DIR}/src/prototab.h")
 
 # Testing
-# build testsuite
-add_subdirectory(tests)
+
+add_executable(isprefix_test tests/isprefix_test.c src/isprefix.c)
+
+add_test(NAME isprefix_test COMMAND isprefix_test)
 
 add_test(NAME Help COMMAND help.test ${CMAKE_CURRENT_BINARY_DIR} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-add_test(NAME Isprefix COMMAND isprefix.test ${CMAKE_CURRENT_BINARY_DIR} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 add_test(NAME Mutate COMMAND mutate.test ${CMAKE_CURRENT_BINARY_DIR} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 add_test(NAME Signature COMMAND signature.test ${CMAKE_CURRENT_BINARY_DIR} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 add_test(NAME Sources COMMAND sources.test ${CMAKE_CURRENT_BINARY_DIR} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
@@ -236,7 +237,8 @@ target_link_libraries(rsync
    ${ZLIB_LIBRARIES}
 )
 
-set_target_properties(rsync PROPERTIES VERSION 1.0.0 SOVERSION 1)
+set_target_properties(rsync PROPERTIES VERSION ${LIBRSYNC_VERSION}
+        SOVERSION ${LIBRSYNC_MAJOR_VERSION})
 install(TARGETS rsync ${INSTALL_TARGETS_DEFAULT_ARGS} DESTINATION lib)
 
 
