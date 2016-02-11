@@ -1,5 +1,46 @@
 # librsync NEWS
 
+## librsync 2.0.1
+
+NOT RELEASED YET
+
+ * Extensively reworked Doxygen documentation, now available at
+   http://librsync.sourcefrog.net/
+   (Martin Pool)
+   
+ * Removed some declarations from librsync.h that were unimplemented or no
+   longer ever useful: `rs_work_options`, `rs_accum_value`.
+   Remove declaration of unimplemented `rs_mdfour_file()`.
+   (Martin Pool)
+ 
+ * Remove shipped `snprintf` code: no longer acutally linked after changing to
+   CMake, and since it's part of C99 it should be widely available.
+   (Martin Pool)
+
+ * Document that Ninja (http://ninja-build.org/) is supported under CMake.
+   It's a bit faster and nicer than Make.
+   (Martin Pool)
+
+ * `make check` (or `ninja check` etc) will now build and run the tests.
+   Previously due to a CMake limitation, `make test` would only run existing
+   tests and could fail if they weren't built.
+   (Martin Pool, https://github.com/librsync/librsync/issues/49)
+
+ * Added cmake options to exclude rdiff target and compression from build.
+   See install documentation for details.
+   Thanks to Michele Bertasi.
+
+## librsync 2.0.0
+
+Released 2015-11-29
+
+Note: despite the major version bump, this release has few changes and should
+be binary and API compatible with the previous version.
+
+ * Bump librsync version number to 2.0, to match the library
+   soname/dylib version.
+   (Martin Pool, https://github.com/librsync/librsync/issues/48)
+
 ## librsync 1.0.1 (2015-11-21)
 
  * Better performance on large files. (VictorDenisov)
@@ -60,7 +101,7 @@
 
  * Yet more large file support fixes.
  
- * C++ support for easy #include <librsync.h> in C++.
+ * `extern "C"` guards in librsync.h to let it be used from C++.
  
  * Removed Debian files from dist tarball.
  

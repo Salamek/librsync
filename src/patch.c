@@ -1,20 +1,19 @@
 /*= -*- c-basic-offset: 4; indent-tabs-mode: nil; -*-
  *
  * librsync -- the library for network deltas
- * $Id$
- * 
+ *
  * Copyright (C) 2000, 2001 by Martin Pool <mbp@sourcefrog.net>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1 of
  * the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -210,7 +209,7 @@ static rs_result rs_patch_s_copying(rs_job_t *job)
 {
     rs_result       result;
     size_t          len;
-    void            *buf, *ptr;
+    void            *ptr;
     rs_buffers_t    *buffs = job->stream;
 
     /* copy only as much as will fit in the output buffer, so that we
@@ -223,7 +222,7 @@ static rs_result rs_patch_s_copying(rs_job_t *job)
     rs_trace("copy " PRINTF_FORMAT_U64 " bytes from basis at offset " PRINTF_FORMAT_U64 "",
              PRINTF_CAST_U64(len), PRINTF_CAST_U64(job->basis_pos));
 
-    ptr = buf = rs_alloc(len, "basis buffer");
+    ptr = buffs->next_out;
     
     result = (job->copy_cb)(job->copy_arg, job->basis_pos, &len, &ptr);
     if (result != RS_DONE)
@@ -233,7 +232,9 @@ static rs_result rs_patch_s_copying(rs_job_t *job)
     
     rs_trace("got " PRINTF_FORMAT_U64 " bytes back from basis callback", PRINTF_CAST_U64(len));
 
-    memcpy(buffs->next_out, ptr, len);
+    /* copy back to out buffer only if the callback has used its own buffer */
+    if (ptr != buffs->next_out)
+        memcpy(buffs->next_out, ptr, len);
 
     buffs->next_out += len;
     buffs->avail_out -= len;
@@ -241,12 +242,10 @@ static rs_result rs_patch_s_copying(rs_job_t *job)
     job->basis_pos += len;
     job->basis_len -= len;
 
-    free(buf);
-
     if (!job->basis_len) {
         /* Done! */
         job->statefn = rs_patch_s_cmdbyte;
-    } 
+    }
 
     return RS_RUNNING;
 }
@@ -279,32 +278,6 @@ static rs_result rs_patch_s_header(rs_job_t *job)
 }
 
 
-
-/**
- * \brief Apply a \ref gloss_delta to a \ref gloss_basis to recreate
- * the new file.
- *
- * This gives you back a ::rs_job_t object, which can be cranked by
- * calling rs_job_iter() and updating the stream pointers.  When
- * finished, call rs_job_finish() to dispose of it.
- *
- * \param stream Contains pointers to input and output buffers, to be
- * adjusted by caller on each iteration.
- *
- * \param copy_cb Callback used to retrieve content from the basis
- * file.
- *
- * \param copy_arg Opaque environment pointer passed through to the
- * callback.
- *
- * \todo As output is produced, accumulate the MD4 checksum of the
- * output.  Then if we find a CHECKSUM command we can check it's
- * contents against the output.
- *
- * \todo Implement COPY commands.
- *
- * \sa rs_patch_file()
- */
 rs_job_t *
 rs_patch_begin(rs_copy_cb *copy_cb, void *copy_arg)
 {

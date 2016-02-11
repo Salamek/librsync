@@ -1,6 +1,5 @@
 /*= -*- c-basic-offset: 4; indent-tabs-mode: nil; -*-
  * librsync -- dynamic caching and delta update in HTTP
- * $Id$
  *
  * Copyright (C) 2000 by Martin Pool <mbp@sourcefrog.net>
  *
@@ -41,4 +40,6 @@ int main(int argc, char **argv)
     assert(!isprefix("goo", "foo"));
     assert(!isprefix("foo", ""));
     assert(!isprefix("f", "g"));
+
+    return 0;
 }

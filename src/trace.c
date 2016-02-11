@@ -1,7 +1,6 @@
 /*= -*- c-basic-offset: 4; indent-tabs-mode: nil; -*-
  *
  * librsync -- library for network deltas
- * $Id$
  *
  * Copyright (C) 2000, 2001 by Martin Pool <mbp@sourcefrog.net>
  *
@@ -53,7 +52,6 @@
 #include "librsync.h"
 #include "util.h"
 #include "trace.h"
-#include "snprintf.h"
 
 rs_trace_fn_t  *rs_trace_impl = rs_trace_stderr;
 
@@ -100,9 +98,6 @@ rs_trace_to(rs_trace_fn_t * new_impl)
 }
 
 
-/** 
- * Set the least important message severity that will be output.
- */
 void
 rs_trace_set_level(rs_loglevel level)
 {
@@ -121,15 +116,15 @@ rs_log_va(int flags, char const *fn, char const *fmt, va_list va)
 
         vsnprintf(buf, sizeof buf - 1, fmt, va);
 
-        if (flags & RS_LOG_NONAME) { 
+        if (flags & RS_LOG_NONAME) {
             snprintf(full_buf, sizeof full_buf - 1,
                      "%s: %s%s\n",
                      MY_NAME, rs_severities[level], buf);
-        } else { 
+        } else {
             snprintf(full_buf, sizeof full_buf - 1,
                      "%s: %s(%s) %s\n",
                      MY_NAME, rs_severities[level], fn, buf);
-        } 
+        }
 
 	rs_trace_impl(level, full_buf);
     }
@@ -166,7 +161,7 @@ rs_log0(int level, char const *fn, char const *fmt, ...)
 
 
 void
-rs_trace_stderr(int UNUSED(level), char const *msg)
+rs_trace_stderr(rs_loglevel UNUSED(level), char const *msg)
 {
     /* NOTE NO TRAILING NUL */
     write(STDERR_FILENO, msg, strlen(msg));
@@ -176,20 +171,21 @@ rs_trace_stderr(int UNUSED(level), char const *msg)
 /* This is called directly if the machine doesn't allow varargs
  * macros. */
 void
-rs_fatal0(char const *s, ...) 
+rs_fatal0(char const *s, ...)
 {
     va_list	va;
 
     va_start(va, s);
     rs_log_va(RS_LOG_CRIT, PACKAGE, s, va);
     va_end(va);
+    abort();
 }
 
 
 /* This is called directly if the machine doesn't allow varargs
  * macros. */
 void
-rs_error0(char const *s, ...) 
+rs_error0(char const *s, ...)
 {
     va_list	va;
 
@@ -202,7 +198,7 @@ rs_error0(char const *s, ...)
 /* This is called directly if the machine doesn't allow varargs
  * macros. */
 void
-rs_trace0(char const *s, ...) 
+rs_trace0(char const *s, ...)
 {
 #ifdef DO_RS_TRACE
     va_list	va;
@@ -214,11 +210,6 @@ rs_trace0(char const *s, ...)
 }
 
 
-/**
- * Return true if the library contains trace code; otherwise false.
- * If this returns false, then trying to turn trace on will achieve
- * nothing.
- */
 int
 rs_supports_trace(void)
 {
@@ -228,5 +219,3 @@ rs_supports_trace(void)
     return 0;
 #endif				/* !DO_RS_TRACE */
 }
-
-

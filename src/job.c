@@ -1,20 +1,19 @@
 /*= -*- c-basic-offset: 4; indent-tabs-mode: nil; -*-
  *
  * librsync -- the library for network deltas
- * $Id$
- * 
+ *
  * Copyright (C) 2000, 2001 by Martin Pool <mbp@sourcefrog.net>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1 of
  * the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -27,15 +26,19 @@
                                | sheltering.
                                */
 
-/*
- * job.c -- Generic state-machine interface.  The point of this is
- * that we need to be able to suspend and resume processing at any
- * point at which the buffers may block.  We could do that using
- * setjmp or similar tricks, but this is probably simpler.
+/**
+ * \file job.c
  *
- * TODO: We have a few functions to do with reading a netint, stashing
- * it somewhere, then moving into a different state.  Is it worth
- * writing generic functions fo r that, or would it be too confusing?
+ * \brief
+ * Generic state-machine interface.
+ *
+ * The point of this is
+ * that we need to be able to suspend and resume processing at any
+ * point at which the buffers may block.
+ *
+ * \see \ref api_streaming
+ * \see rs_job_iter()
+ * \see ::rs_job
  */
 
 
@@ -124,16 +127,6 @@ static rs_result rs_job_complete(rs_job_t *job, rs_result result)
 }
 
 
-/** 
- * \brief Run a ::rs_job_t state machine until it blocks
- * (::RS_BLOCKED), returns an error, or completes (::RS_COMPLETE).
- *
- * \return The ::rs_result that caused iteration to stop.
- *
- * \param ending True if there is no more data after what's in the
- * input buffer.  The final block checksum will run across whatever's
- * in there, without trying to accumulate anything else.
- */
 rs_result rs_job_iter(rs_job_t *job, rs_buffers_t *buffers)
 {
     rs_result       result;
@@ -144,7 +137,7 @@ rs_result rs_job_iter(rs_job_t *job, rs_buffers_t *buffers)
 
     result = rs_job_work(job, buffers);
 
-    if (result == RS_BLOCKED  ||  result == RS_DONE) 
+    if (result == RS_BLOCKED  ||  result == RS_DONE)
         if ((orig_in == buffers->avail_in)  &&  (orig_out == buffers->avail_out)
             && orig_in && orig_out) {
             rs_log(RS_LOG_ERR, "internal error: job made no progress "
@@ -200,9 +193,6 @@ rs_job_work(rs_job_t *job, rs_buffers_t *buffers)
 }
 
 
-/**
- * \brief Return pointer to statistics accumulated about this job.
- */
 const rs_stats_t *
 rs_job_statistics(rs_job_t *job)
 {
@@ -218,10 +208,6 @@ rs_job_input_is_ending(rs_job_t *job)
 
 
 
-/**
- * Actively process a job, by making callbacks to fill and empty the
- * buffers until the job is done.
- */
 rs_result
 rs_job_drive(rs_job_t *job, rs_buffers_t *buf,
              rs_driven_cb in_cb, void *in_opaque,
@@ -251,4 +237,3 @@ rs_job_drive(rs_job_t *job, rs_buffers_t *buf,
 
     return result;
 }
-

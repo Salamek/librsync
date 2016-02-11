@@ -1,24 +1,12 @@
-* Upload built documentation to librsync.sourcefrog.net, delete dead sites.
+* Fix symbol names:
 
-* Documentation
+  * Rename all symbols that are intended to be private to `rs__`
   
-    Would be nice...
-
-    Most importantly, some kind of manpage for rdiff, since it's
-    closest to being an end-user tool.  After that, some API
-    documentation.
-
-    Can either persist in doing the API documentation through
-    Doxygen, though I don't think it's very well suited to C
-    libraries.  Perhaps it's better to just write a manpage as a
-    regular document, describing the functions in the most sensible
-    order.
-
-    At the moment, reStructuredText looks like a good bet for an
-    input format.
-
-* Change existing text documentation in README.* etc to use a single
-  consistant format, probably markdown.
+  * Rename those that don't match either prefix.
+  
+* We have a few functions to do with reading a netint, stashing
+  it somewhere, then moving into a different state.  Is it worth
+  writing generic functions for that, or would it be too confusing?
 
 * Fix up consecutive matches
 
@@ -68,12 +56,10 @@
   scoop.c: Scoop needs major refactor. Perhaps the API needs
   tweaking?
 
-  rsync.h: documentation refers to rs_work(), which has been replaced
-  by rs_job_iter. Vestigial rs_work_options enum typedef should be
-  removed. rs_buffers_s and rs_buffers_t should be one typedef? Just
-  how useful is rs_job_drive anyway? Not implemented, rs_accum_value
-  Not implemented rs_mdfour_file
-
+  rsync.h: rs_buffers_s and rs_buffers_t should be one typedef?
+  
+  * Just how useful is rs_job_drive anyway?
+  
   patch.c: rs_patch_s_copying() does alloc, copy free, when it could
   just copy directly into rs_buffer_t buffer. This _does_ mean the
   callback can't allocate it's own data, though this can be done by
@@ -81,20 +67,8 @@
 
   mdfour.c: This code has a different API to the RSA code in libmd
   and is coupled with librsync in unhealthy ways (trace?). Recommend
-  changing to RSA API.
+  changing to RSA API?
    
-* Create library for autoconf replacement functions
-
-  Make libreplace.a library in dir replace/ for autoconf replacement
-  functions. Move snprintf.[ch] into this library. Add malloc.c, memcmp.c,
-  and realloc.c functions, uncommenting checks in configure.in.
-  
-  Add common.h header to centralise all configure driven "#if SOMETHING"
-  header variations, replacing them throughout code with #include "common.h".
-  
-  Make snprintf.c into two proper replacement functions for snprintf
-  and vsnprintf instead of using conditional compilation.
-
 * Don't use the rs_buffers_t structure.
 
   There's something confusing about the existence of this structure.
@@ -195,7 +169,7 @@
   * State-machine searching
 
     Building a state machine from a regular expression is a brilliant
-    idea.  (I think `The Practice of Programming' walks through the
+    idea.  (I think *The Practice of Programming* walks through the
     construction of this at a fairly simple level.)
 
     In particular, we can search for any of a large number of
@@ -310,7 +284,7 @@
 
   * What do we need to do to compile in support for this?
 
-    * On GNU, defining _LARGEFILE_SOURCE as we now do should be
+    * On GNU, defining `_LARGEFILE_SOURCE` as we now do should be
       sufficient.
 
     * SCO and similar things on 32-bit platforms may be more
@@ -332,7 +306,3 @@
 * Fall back from `uint8_t` to probably `unsigned char` if necessary.
 
 * Don't randomly use chars and longs; use rs_byte_t and rs_size_t.
-
-* Fold snprintf.h into librsync-config.h.in or even maybe config.h.in.
-
-* Maybe just drop snprintf, if plausibly everyone has it? Or can we avoid it?
